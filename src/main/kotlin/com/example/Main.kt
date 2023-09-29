@@ -5,11 +5,17 @@ import com.github.kotlintelegrambot.dispatch
 import com.github.kotlintelegrambot.dispatcher.sticker
 import com.github.kotlintelegrambot.dispatcher.text
 import com.github.kotlintelegrambot.entities.ChatId
+import com.github.kotlintelegrambot.entities.HideKeyboardReplyMarkup
+import com.github.kotlintelegrambot.entities.ReplyMarkup
+import com.github.kotlintelegrambot.entities.TelegramFile
+import com.github.kotlintelegrambot.logging.LogLevel
 import org.telegram.telegrambots.meta.api.objects.stickers.Sticker
 import java.io.File
 import kotlin.random.Random
 
 const val RANDOM_UNTIL = 7L
+const val FRIENDS_STICKER_ID = "CAACAgIAAxkBAAEmZi9lFyuoaybgVIYcJYhemKCiR28V9wAC4wADwNw1NSPssrAvYB_CMAQ"
+const val BRO_STICKER_ID = "CAACAgQAAxkBAAEmZhFlFylOMGWBdRrmKScmiuW9ROS0HQACpgADUCGkFvVZcNpNbZ6KMAQ"
 
 val братья = mapOf(
     "ваня" to "@imelkozerov ",
@@ -21,6 +27,7 @@ val братья = mapOf(
 fun main() {
     val bot = bot {
         token = readApiKeyFromFile() ?: error("апи ключ отвалился")
+        logLevel = LogLevel.All()
         dispatch {
             text {
                 val randomAnswer = when (text.lowercase()) {
@@ -63,6 +70,29 @@ fun main() {
                 if (stickerId != null) bot.sendMessage(
                     ChatId.fromId(message.chat.id), text = "стикер", replyToMessageId = message.messageId
                 )
+
+                val brats = listOf("брат", "братан", "братишка", "браток", "брателла")
+                if (brats.any { brat -> message.text?.lowercase()?.split(" ")?.contains(brat) == true }) {
+                    bot.sendSticker(
+                        chatId = ChatId.fromId(message.chat.id),
+                        sticker = BRO_STICKER_ID,
+                        replyMarkup = HideKeyboardReplyMarkup(),
+                    )
+                }
+                if (message.text?.lowercase() == "друзья") {
+                    bot.sendSticker(
+                        chatId = ChatId.fromId(message.chat.id),
+                        sticker = FRIENDS_STICKER_ID,
+                        replyMarkup = HideKeyboardReplyMarkup(),
+                    )
+                }
+                if (message.sticker?.fileId == BRO_STICKER_ID) {
+                    bot.sendSticker(
+                        chatId = ChatId.fromId(message.chat.id),
+                        sticker = BRO_STICKER_ID,
+                        replyMarkup = HideKeyboardReplyMarkup(),
+                    )
+                }
             }
         }
     }
