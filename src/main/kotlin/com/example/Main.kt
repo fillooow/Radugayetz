@@ -4,9 +4,9 @@ import com.github.kotlintelegrambot.bot
 import com.github.kotlintelegrambot.dispatch
 import com.github.kotlintelegrambot.dispatcher.text
 import com.github.kotlintelegrambot.entities.ChatId
+import java.io.File
 import kotlin.random.Random
 
-const val KEY = ""
 const val RANDOM_UNTIL = 7L
 
 val братья = mapOf(
@@ -18,7 +18,7 @@ val братья = mapOf(
 
 fun main() {
     val bot = bot {
-        token = KEY
+        token = readApiKeyFromFile() ?: error("апи ключ отвалился")
         dispatch {
             text {
                 val randomAnswer = when (text.lowercase()) {
@@ -45,4 +45,17 @@ fun main() {
         }
     }
     bot.startPolling()
+}
+
+fun readApiKeyFromFile(): String? {
+    val fileName = "secret"
+    val file = File(fileName)
+
+    return try {
+        val apiKey = file.readText()
+        apiKey.trim()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 }
