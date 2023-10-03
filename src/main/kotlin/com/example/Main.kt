@@ -7,6 +7,7 @@ import com.example.utils.Defaults.BRO_STICKER_UNIQUE_ID
 import com.example.utils.Defaults.FRIENDS_STICKER_ID
 import com.example.utils.Defaults.RANDOM_UNTIL
 import com.example.utils.Defaults.братья
+import com.example.utils.LogUtils.writeMessageLog
 import com.example.utils.readApiKeyFromFile
 import com.example.utils.writeLog
 import com.github.kotlintelegrambot.bot
@@ -28,6 +29,7 @@ fun main() {
                 }
             }
             text {
+                writeMessageLog(message.text)
                 val randomAnswer = when (text.lowercase()) {
                     "да" -> "пизда"
                     "нет" -> "пидора ответ"
@@ -40,6 +42,7 @@ fun main() {
                     val key = Random.nextLong(RANDOM_UNTIL)
                     if (key == 1L) bot.sendMessage(ChatId.fromId(message.chat.id), text = randomAnswer)
                 }
+
                 val mentionedБратья = message.text?.lowercase()?.split(" ")
                     ?.mapNotNull { word ->
                         when (братья.contains(word)) {
@@ -58,10 +61,6 @@ fun main() {
                         text = братText.replaceFirst("\n", ""),
                         replyToMessageId = message.messageId,
                     )
-
-                val log = message.sticker?.fileId ?: message.text
-                println(log)
-                log?.let { writeLog(log) }
 
                 val kal = when (message.text?.lowercase()) {
                     "кал" -> "белый"
