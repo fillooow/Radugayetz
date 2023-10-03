@@ -1,5 +1,10 @@
 package com.example
 
+import com.example.utils.Defaults.BRO_STICKER_ID
+import com.example.utils.Defaults.BRO_STICKER_UNIQUE_ID
+import com.example.utils.Defaults.FRIENDS_STICKER_ID
+import com.example.utils.Defaults.RANDOM_UNTIL
+import com.example.utils.Defaults.братья
 import com.example.utils.readApiKeyFromFile
 import com.example.utils.writeLog
 import com.github.kotlintelegrambot.bot
@@ -10,18 +15,6 @@ import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.HideKeyboardReplyMarkup
 import com.github.kotlintelegrambot.logging.LogLevel
 import kotlin.random.Random
-
-const val RANDOM_UNTIL = 7L
-const val FRIENDS_STICKER_ID = "CAACAgIAAxkBAAEmZi9lFyuoaybgVIYcJYhemKCiR28V9wAC4wADwNw1NSPssrAvYB_CMAQ"
-const val BRO_STICKER_ID = "CAACAgQAAxkBAAEmZhFlFylOMGWBdRrmKScmiuW9ROS0HQACpgADUCGkFvVZcNpNbZ6KMAQ"
-const val BRO_STICKER_UNIQUE_ID = "AgADpgADUCGkFg"
-
-val братья = mapOf(
-    "ваня" to "@imelkozerov ",
-    "маша" to "@mashhatt ",
-    "филипп" to "@fillooow ",
-    "денис" to "@java_agent ",
-)
 
 fun main() {
     val bot = bot {
