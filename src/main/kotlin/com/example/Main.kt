@@ -9,9 +9,12 @@ import com.example.utils.Defaults.RANDOM_UNTIL
 import com.example.utils.Defaults.братья
 import com.example.utils.LogUtils.writeMessageLog
 import com.example.utils.readApiKeyFromFile
+import com.example.utils.readLastLines
+import com.example.utils.readLastNLinesFromFile
 import com.example.utils.writeLog
 import com.github.kotlintelegrambot.bot
 import com.github.kotlintelegrambot.dispatch
+import com.github.kotlintelegrambot.dispatcher.command
 import com.github.kotlintelegrambot.dispatcher.sticker
 import com.github.kotlintelegrambot.dispatcher.text
 import com.github.kotlintelegrambot.entities.ChatId
@@ -23,6 +26,26 @@ fun main() {
         token = readApiKeyFromFile() ?: error("апи ключ отвалился")
         logLevel = LogLevel.All()
         dispatch {
+            command("shiz_summary") {
+                val messageCount = message.text?.replace("/shiz_summary", "")?.trim()?.toIntOrNull() ?: 50
+                bot.sendMessage(
+                    ChatId.fromId(message.chat.id),
+                    text = "Шиза, составленная из последних $messageCount сообщений:\n\n" +
+                            readLastNLinesFromFile(messageCount).map { line ->
+                                line.split(" ")
+                                    .filterNot { it.startsWith("/s") || it.toIntOrNull() != null }
+                                    .shuffled()
+                                    .take(Random.nextInt(5))
+                                    .joinToString(" ")
+                            }.shuffled()
+                                .joinToString(separator = " ")
+                                .replace("\n".toRegex(), " ")
+                                .replace("\\", " ")
+                                .replace("\\s+".toRegex(), " ")
+                                .trim(),
+                    replyToMessageId = message.messageId
+                )
+            }
             sticker {
                 if (message.sticker?.fileUniqueId == BRO_STICKER_UNIQUE_ID) {
                     bot.sendBroSticker(message.chat.id)
@@ -30,6 +53,7 @@ fun main() {
             }
             text {
                 writeMessageLog(message.text)
+
                 val randomAnswer = when (text.lowercase()) {
                     "да" -> "пизда"
                     "нет" -> "пидора ответ"
