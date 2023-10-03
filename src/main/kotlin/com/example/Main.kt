@@ -1,21 +1,20 @@
 package com.example
 
+import com.example.utils.readApiKeyFromFile
+import com.example.utils.writeLog
 import com.github.kotlintelegrambot.bot
 import com.github.kotlintelegrambot.dispatch
 import com.github.kotlintelegrambot.dispatcher.sticker
 import com.github.kotlintelegrambot.dispatcher.text
 import com.github.kotlintelegrambot.entities.ChatId
 import com.github.kotlintelegrambot.entities.HideKeyboardReplyMarkup
-import com.github.kotlintelegrambot.entities.ReplyMarkup
-import com.github.kotlintelegrambot.entities.TelegramFile
 import com.github.kotlintelegrambot.logging.LogLevel
-import org.telegram.telegrambots.meta.api.objects.stickers.Sticker
-import java.io.File
 import kotlin.random.Random
 
 const val RANDOM_UNTIL = 7L
 const val FRIENDS_STICKER_ID = "CAACAgIAAxkBAAEmZi9lFyuoaybgVIYcJYhemKCiR28V9wAC4wADwNw1NSPssrAvYB_CMAQ"
 const val BRO_STICKER_ID = "CAACAgQAAxkBAAEmZhFlFylOMGWBdRrmKScmiuW9ROS0HQACpgADUCGkFvVZcNpNbZ6KMAQ"
+const val BRO_STICKER_UNIQUE_ID = "AgADpgADUCGkFg"
 
 val братья = mapOf(
     "ваня" to "@imelkozerov ",
@@ -29,6 +28,15 @@ fun main() {
         token = readApiKeyFromFile() ?: error("апи ключ отвалился")
         logLevel = LogLevel.All()
         dispatch {
+            sticker {
+                if (message.sticker?.fileUniqueId == BRO_STICKER_UNIQUE_ID) {
+                    bot.sendSticker(
+                        chatId = ChatId.fromId(message.chat.id),
+                        sticker = BRO_STICKER_ID,
+                        replyMarkup = HideKeyboardReplyMarkup(),
+                    )
+                }
+            }
             text {
                 val randomAnswer = when (text.lowercase()) {
                     "да" -> "пизда"
@@ -42,14 +50,24 @@ fun main() {
                     val key = Random.nextLong(RANDOM_UNTIL)
                     if (key == 1L) bot.sendMessage(ChatId.fromId(message.chat.id), text = randomAnswer)
                 }
-                val брат = братья.keys.firstOrNull { key -> text.lowercase().contains(key) }
-                if (брат != null) {
+                val mentionedБратья = message.text?.lowercase()?.split(" ")
+                    ?.mapNotNull { word ->
+                        when (братья.contains(word)) {
+                            true -> братья.getValue(word)
+                            else -> null
+                        }
+                    }?.distinct().orEmpty()
+//                val брат = братья.keys.firstOrNull { key -> text.lowercase().contains(key) }
+                var братText = ""
+                for (брат in mentionedБратья) {
+                    братText += "\nну $брат"
+                }
+                if (братText.isNotBlank())
                     bot.sendMessage(
                         ChatId.fromId(message.chat.id),
-                        text = "${text.lowercase().replace(брат, братья.getValue(брат))}",
+                        text = братText.replaceFirst("\n", ""),
                         replyToMessageId = message.messageId,
                     )
-                }
 
                 val log = message.sticker?.fileId ?: message.text
                 println(log)
@@ -86,40 +104,17 @@ fun main() {
                         replyMarkup = HideKeyboardReplyMarkup(),
                     )
                 }
-                if (message.sticker?.fileId == BRO_STICKER_ID) {
-                    bot.sendSticker(
-                        chatId = ChatId.fromId(message.chat.id),
-                        sticker = BRO_STICKER_ID,
-                        replyMarkup = HideKeyboardReplyMarkup(),
-                    )
-                }
+//                if (message.text == "ваня тест") {
+//                    repeat(100) {
+//                        bot.sendSticker(
+//                            chatId = ChatId.fromId(message.chat.id),
+//                            sticker = BRO_STICKER_ID,
+//                            replyMarkup = HideKeyboardReplyMarkup(),
+//                        )
+//                    }
+//                }
             }
         }
     }
     bot.startPolling()
-}
-
-fun readApiKeyFromFile(): String? {
-    val fileName = "secret"
-    val file = File(fileName)
-
-    return try {
-        val apiKey = file.readText()
-        apiKey.trim()
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
-}
-
-fun writeLog(text: String) {
-    val fileName = "logs"
-    val file = File(fileName)
-
-    try {
-        file.appendText("$text\n")
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
 }
