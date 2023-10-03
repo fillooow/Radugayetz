@@ -1,5 +1,7 @@
 package com.example
 
+import com.example.bot_send.BotSend.sendBroSticker
+import com.example.bot_send.BotSend.sendFriendsSticker
 import com.example.utils.Defaults.BRO_STICKER_ID
 import com.example.utils.Defaults.BRO_STICKER_UNIQUE_ID
 import com.example.utils.Defaults.FRIENDS_STICKER_ID
@@ -12,7 +14,6 @@ import com.github.kotlintelegrambot.dispatch
 import com.github.kotlintelegrambot.dispatcher.sticker
 import com.github.kotlintelegrambot.dispatcher.text
 import com.github.kotlintelegrambot.entities.ChatId
-import com.github.kotlintelegrambot.entities.HideKeyboardReplyMarkup
 import com.github.kotlintelegrambot.logging.LogLevel
 import kotlin.random.Random
 
@@ -23,11 +24,7 @@ fun main() {
         dispatch {
             sticker {
                 if (message.sticker?.fileUniqueId == BRO_STICKER_UNIQUE_ID) {
-                    bot.sendSticker(
-                        chatId = ChatId.fromId(message.chat.id),
-                        sticker = BRO_STICKER_ID,
-                        replyMarkup = HideKeyboardReplyMarkup(),
-                    )
+                    bot.sendBroSticker(message.chat.id)
                 }
             }
             text {
@@ -73,29 +70,25 @@ fun main() {
                 }
                 kal?.let {
                     bot.sendMessage(
-                        ChatId.fromId(message.chat.id), text = kal, replyToMessageId = message.messageId
+                        ChatId.fromId(message.chat.id),
+                        text = kal,
+                        replyToMessageId = message.messageId
                     )
                 }
 
                 val stickerId = message.sticker?.fileId
                 if (stickerId != null) bot.sendMessage(
-                    ChatId.fromId(message.chat.id), text = "стикер", replyToMessageId = message.messageId
+                    ChatId.fromId(message.chat.id),
+                    text = "стикер",
+                    replyToMessageId = message.messageId
                 )
 
                 val brats = listOf("брат", "братан", "братишка", "браток", "брателла")
                 if (brats.any { brat -> message.text?.lowercase()?.split(" ")?.contains(brat) == true }) {
-                    bot.sendSticker(
-                        chatId = ChatId.fromId(message.chat.id),
-                        sticker = BRO_STICKER_ID,
-                        replyMarkup = HideKeyboardReplyMarkup(),
-                    )
+                    bot.sendBroSticker(message.chat.id)
                 }
                 if (message.text?.lowercase() == "друзья") {
-                    bot.sendSticker(
-                        chatId = ChatId.fromId(message.chat.id),
-                        sticker = FRIENDS_STICKER_ID,
-                        replyMarkup = HideKeyboardReplyMarkup(),
-                    )
+                    bot.sendFriendsSticker(message.chat.id)
                 }
 //                if (message.text == "ваня тест") {
 //                    repeat(100) {
