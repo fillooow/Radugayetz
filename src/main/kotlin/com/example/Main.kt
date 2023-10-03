@@ -43,7 +43,7 @@ fun main() {
                     if (key == 1L) bot.sendMessage(ChatId.fromId(message.chat.id), text = randomAnswer)
                 }
 
-                val mentionedБратья = message.text?.lowercase()?.split(" ")
+                val mentionedБратья = message.text?.lowercase()?.replace("[.,]".toRegex(), "")?.split(" ")
                     ?.mapNotNull { word ->
                         when (братья.contains(word)) {
                             true -> братья.getValue(word)
